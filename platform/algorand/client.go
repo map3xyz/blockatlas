@@ -44,7 +44,7 @@ func (c *Client) GetTxsInBlock(number int64) ([]Transaction, error) {
 	return resp.Transactions, err
 }
 
-//deprecated, no longer need to support staking
+// deprecated, no longer need to support staking
 func (c *Client) GetAccount(address string) (account *Account, err error) {
 	path := fmt.Sprintf("v2/accounts/%s", address)
 	err = c.Get(&account, path, nil)
