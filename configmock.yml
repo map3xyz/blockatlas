@@ -20,8 +20,8 @@ observer:
       prefetch_count: 10
 
 postgres:
-  uri: postgresql://user:pass@localhost/blockatlas?sslmode=disable
-  read_uri: postgresql://user:pass@localhost/blockatlas?sslmode=disable
+  url: postgresql://qingu@localhost/blockatlas?sslmode=disable
+  read_url: postgresql://test:test@localhost/blockatlas?sslmode=disable
   log: false
 
 # [BNB] Binance DEX: https://wallet.binance.org
@@ -197,3 +197,6 @@ kava:
 
 kusama:
   api: http://localhost:3347/mock/kusama-rpc
+
+metrics:
+  path: metrics

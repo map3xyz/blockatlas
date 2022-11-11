@@ -5,13 +5,15 @@ package main
 import (
 	"errors"
 	"fmt"
-	"gopkg.in/yaml.v2"
-	"io/ioutil"
+	"io"
 	"log"
 	"net/http"
 	"net/url"
+	"os"
 	"strconv"
 	"strings"
+
+	"gopkg.in/yaml.v2"
 )
 
 type TestDataEntry struct {
@@ -59,7 +61,7 @@ func matchQueryParams(expected, actual string) bool {
 
 func readFileList(directory string) error {
 	filename := directory + "/datafiles.yaml"
-	yamlFile, err := ioutil.ReadFile(filename)
+	yamlFile, err := os.ReadFile(filename)
 	if err != nil {
 		log.Fatalf("Could not read index err %v file %v", err.Error(), filename)
 		return errors.New("Could not read index file, err " + err.Error() + " file " + filename)
@@ -161,7 +163,7 @@ func findFileForMockURL(mockURL, method, queryParams, requestBody string) (TestD
 		// check request data
 		if len(requestBody) > 0 {
 			// read request file
-			reqFileB, err := ioutil.ReadFile(ff.ReqFile)
+			reqFileB, err := os.ReadFile(ff.ReqFile)
 			if err == nil {
 				expectedRequestData := string(reqFileB)
 				if err = matchRequestDataJson(requestBody, expectedRequestData, ff.ReqField); err != nil {
@@ -184,7 +186,7 @@ func requestHandlerIntern(w http.ResponseWriter, r *http.Request, method, body, 
 		return err
 	}
 	// read and return response
-	b, err := ioutil.ReadFile(basedir + "/" + entry.Filename)
+	b, err := os.ReadFile(basedir + "/" + entry.Filename)
 	if err != nil {
 		return errors.New("Could not read data file for request")
 	}
@@ -196,7 +198,7 @@ func requestHandler(w http.ResponseWriter, r *http.Request, basedir string) {
 	// read body
 	body := ""
 	if r.Method == "POST" {
-		bodyByte, err := ioutil.ReadAll(r.Body)
+		bodyByte, err := io.ReadAll(r.Body)
 		if err == nil {
 			body = string(bodyByte)
 		}

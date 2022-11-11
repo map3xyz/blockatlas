@@ -47,9 +47,6 @@ PID_MOCKSERVER := /tmp/.$(PROJECT_NAME).mockserver.pid
 # Make is verbose in Linux. Make it silent.
 MAKEFLAGS += --silent
 
-## install: Install missing dependencies. Runs `go get` internally. e.g; make install get=github.com/foo/bar
-install: go-get
-
 ## start: Start API, Observer and Sync in development mode.
 start:
 	@bash -c "$(MAKE) clean compile start-api start-parser start-consumer"
@@ -204,7 +201,7 @@ endif
 	@echo "  >  Running $(test) tests"
 	@newman run tests/postman/blockatlas.postman_collection.json --folder $(test) -d tests/postman/$(test)_data.json --env-var "host=$(host)"
 
-go-compile: go-get go-build
+go-compile: go-build
 
 go-build: go-build-api go-build-consumer go-build-parser
 
@@ -233,10 +230,6 @@ go-build-parser:
 go-generate:
 	@echo "  >  Generating dependency files..."
 	GOBIN=$(GOBIN) go generate $(generate)
-
-go-get:
-	@echo "  >  Checking if there is any missing dependencies..."
-	GOBIN=$(GOBIN) go get cmd/... $(get)
 
 go-install:
 	GOBIN=$(GOBIN) go install $(GOPKG)
