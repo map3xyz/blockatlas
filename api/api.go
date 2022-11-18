@@ -31,6 +31,10 @@ func SetupKeychainStoreAPI(router gin.IRouter, instance keychainstore.Instance) 
 	RegisterKeychainStoreAPI(router, instance)
 }
 
+func SetupKeychainAPI(router gin.IRouter) {
+	RegisterKeychainAPI(router)
+}
+
 func SetupTokensIndexAPI(router gin.IRouter, instance tokenindexer.Instance) {
 	RegisterTokensIndexAPI(router, instance)
 }

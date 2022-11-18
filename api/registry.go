@@ -104,11 +104,21 @@ func RegisterBasicAPI(router gin.IRouter) {
 
 func RegisterKeychainStoreAPI(router gin.IRouter, instance keychainstore.Instance) {
 	router.GET("/v1/keychain/events", func(c *gin.Context) {
-		endpoint.GetEvents(c, instance)
+		endpoint.GetKeychainStoreEvents(c, instance)
 	})
 
 	router.GET("/v1/keychain/ws", func(c *gin.Context) {
-		endpoint.WSHandler(c, instance)
+		endpoint.KeychainStoreWSHandler(c, instance)
+	})
+}
+
+func RegisterKeychainAPI(router gin.IRouter) {
+	router.GET("/v1/address", func(c *gin.Context) {
+		endpoint.GetKeychainAddress(c)
+	})
+
+	router.GET("/v1/events", func(c *gin.Context) {
+		endpoint.GetKeychainEvents(c)
 	})
 }
 

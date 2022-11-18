@@ -10,7 +10,7 @@ import (
 	"github.com/trustwallet/blockatlas/services/keychainstore"
 )
 
-func GetEvents(c *gin.Context, instance keychainstore.Instance) {
+func GetKeychainStoreEvents(c *gin.Context, instance keychainstore.Instance) {
 	c.JSON(http.StatusOK, map[string]interface{}{
 		"status": true,
 		"build":  internal.Build,
@@ -23,7 +23,7 @@ var wsupgrader = websocket.Upgrader{
 	WriteBufferSize: 1024,
 }
 
-func WSHandler(c *gin.Context, instance keychainstore.Instance) {
+func KeychainStoreWSHandler(c *gin.Context, instance keychainstore.Instance) {
 	w := c.Writer
 	r := c.Request
 
