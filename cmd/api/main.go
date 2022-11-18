@@ -17,6 +17,7 @@ import (
 	_ "github.com/trustwallet/blockatlas/docs"
 	"github.com/trustwallet/blockatlas/internal"
 	"github.com/trustwallet/blockatlas/platform"
+	"github.com/trustwallet/blockatlas/services/keychainstore"
 	"github.com/trustwallet/blockatlas/services/tokenindexer"
 )
 
@@ -32,6 +33,7 @@ var (
 	engine         *gin.Engine
 	database       *db.Instance
 	tokenIndexer   tokenindexer.Instance
+	keychainStore  keychainstore.Instance
 )
 
 func init() {
@@ -56,12 +58,14 @@ func init() {
 	metrics.Setup(database)
 
 	tokenIndexer = tokenindexer.Init(database)
+	keychainStore = keychainstore.Init(database)
 }
 
 func main() {
 	api.SetupTokensIndexAPI(engine, tokenIndexer)
 	api.SetupSwaggerAPI(engine)
 	api.SetupPlatformAPI(engine)
+	api.SetupKeychainStoreAPI(engine, keychainStore)
 	api.SetupMetrics(engine)
 
 	golibsGin.SetupGracefulShutdown(ctx, port, engine)
