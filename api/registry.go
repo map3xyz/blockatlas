@@ -7,6 +7,7 @@ import (
 	"github.com/trustwallet/blockatlas/api/endpoint"
 	"github.com/trustwallet/blockatlas/pkg/blockatlas"
 	"github.com/trustwallet/blockatlas/platform"
+	"github.com/trustwallet/blockatlas/services/keychainstore"
 	"github.com/trustwallet/blockatlas/services/tokenindexer"
 	"github.com/trustwallet/golibs/network/middleware"
 )
@@ -99,6 +100,16 @@ func RegisterBatchAPI(router gin.IRouter) {
 
 func RegisterBasicAPI(router gin.IRouter) {
 	router.GET("/", endpoint.GetStatus)
+}
+
+func RegisterKeychainStoreAPI(router gin.IRouter, instance keychainstore.Instance) {
+	router.GET("/v1/keychain/events", func(c *gin.Context) {
+		endpoint.GetEvents(c, instance)
+	})
+
+	router.GET("/v1/keychain/ws", func(c *gin.Context) {
+		endpoint.WSHandler(c, instance)
+	})
 }
 
 func RegisterTokensIndexAPI(router gin.IRouter, instance tokenindexer.Instance) {

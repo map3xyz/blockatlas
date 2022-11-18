@@ -8,6 +8,7 @@ import (
 	"github.com/trustwallet/blockatlas/config"
 	_ "github.com/trustwallet/blockatlas/docs"
 	"github.com/trustwallet/blockatlas/platform"
+	"github.com/trustwallet/blockatlas/services/keychainstore"
 	"github.com/trustwallet/blockatlas/services/tokenindexer"
 )
 
@@ -24,6 +25,10 @@ func SetupPlatformAPI(router gin.IRouter) {
 
 	RegisterBatchAPI(router)
 	RegisterBasicAPI(router)
+}
+
+func SetupKeychainStoreAPI(router gin.IRouter, instance keychainstore.Instance) {
+	RegisterKeychainStoreAPI(router, instance)
 }
 
 func SetupTokensIndexAPI(router gin.IRouter, instance tokenindexer.Instance) {

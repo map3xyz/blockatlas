@@ -3,8 +3,6 @@ package main
 import (
 	"context"
 
-	"github.com/trustwallet/blockatlas/internal/metrics"
-
 	golibsGin "github.com/trustwallet/golibs/network/gin"
 
 	"github.com/trustwallet/golibs/network/middleware"
@@ -13,16 +11,12 @@ import (
 	log "github.com/sirupsen/logrus"
 	"github.com/trustwallet/blockatlas/api"
 	"github.com/trustwallet/blockatlas/config"
-	"github.com/trustwallet/blockatlas/db"
 	_ "github.com/trustwallet/blockatlas/docs"
 	"github.com/trustwallet/blockatlas/internal"
-	"github.com/trustwallet/blockatlas/platform"
-	"github.com/trustwallet/blockatlas/services/keychainstore"
-	"github.com/trustwallet/blockatlas/services/tokenindexer"
 )
 
 const (
-	defaultPort       = "8420"
+	defaultPort       = "8430"
 	defaultConfigPath = "../../config.yml"
 )
 
@@ -31,15 +25,11 @@ var (
 	cancel         context.CancelFunc
 	port, confPath string
 	engine         *gin.Engine
-	database       *db.Instance
-	tokenIndexer   tokenindexer.Instance
-	keychainStore  keychainstore.Instance
 )
 
 func init() {
 	port, confPath = internal.ParseArgs(defaultPort, defaultConfigPath)
 	ctx, cancel = context.WithCancel(context.Background())
-	var err error
 
 	internal.InitConfig(confPath)
 
@@ -48,26 +38,30 @@ func init() {
 	}
 
 	engine = internal.InitEngine(config.Default.Gin.Mode)
-	platform.Init(config.Default.Platform)
-
-	database, err = db.New(config.Default.Postgres.URL, config.Default.Postgres.Log)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	metrics.Setup(database)
-
-	tokenIndexer = tokenindexer.Init(database)
-	keychainStore = keychainstore.Init(database)
 }
 
 func main() {
-	api.SetupTokensIndexAPI(engine, tokenIndexer)
-	api.SetupSwaggerAPI(engine)
-	api.SetupPlatformAPI(engine)
-	api.SetupKeychainStoreAPI(engine, keychainStore)
 	api.SetupMetrics(engine)
+	setupAPI(engine)
 
 	golibsGin.SetupGracefulShutdown(ctx, port, engine)
 	cancel()
+}
+
+func setupAPI(router gin.IRouter) {
+	log.Info("Starting keychain service")
+
+	// getAddress(user, customer-apikey, network, asset, addressType (user, memo))
+	// -> { address, memo }
+	// apikey -> keychainID
+	// customer-apikey -> wallet
+	// network/asset -> address
+	// generate new memo
+	// call store api -> (watchAddress/userAddress, memo)
+	router.POST("/v1/address")
+
+	// getEvents(customer-apikey)
+	// apikey -> keychainID
+	// customer-apikey -> wallet
+	router.GET("/v1/events")
 }

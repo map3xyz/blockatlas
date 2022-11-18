@@ -9,6 +9,7 @@ PROJECT_NAME := $(shell basename "$(PWD)")
 API := api
 CONSUMER := consumer
 PARSER := parser
+KEYCHAIN := keychain
 COIN_FILE := coin/coins.yml
 COIN_GO_FILE := coin/coins.go
 GEN_COIN_FILE := coin/gen.go
@@ -43,6 +44,7 @@ STDERR := /tmp/.$(PROJECT_NAME)-stderr.txt
 PID_API := /tmp/.$(PROJECT_NAME).$(API).pid
 PID_CONSUMER := /tmp/.$(PROJECT_NAME).$(CONSUMER).pid
 PID_PARSER := /tmp/.$(PROJECT_NAME).$(PARSER).pid
+PID_KEYCHAIN := /tmp/.$(PROJECT_NAME).$(KEYCHAIN).pid
 PID_MOCKSERVER := /tmp/.$(PROJECT_NAME).mockserver.pid
 # Make is verbose in Linux. Make it silent.
 MAKEFLAGS += --silent
@@ -79,13 +81,21 @@ start-consumer: stop
 	@cat $(PID_CONSUMER) | sed "/^/s/^/  \>  consumer PID: /"
 	@echo "  >  Error log: $(STDERR)"
 
+## start-keychain: Start keychain in development mode.
+start-keychain: stop
+	@echo "  >  Starting $(PROJECT_NAME)"
+	@-$(GOBIN)/$(KEYCHAIN)/keychain -c $(CONFIG_FILE) 2>&1 & echo $$! > $(PID_CONSUMER)
+	@cat $(PID_CONSUMER) | sed "/^/s/^/  \>  consumer PID: /"
+	@echo "  >  Error log: $(STDERR)"
+
 ## stop: Stop development mode.
 stop:
 	@-touch $(PID_API) $(PID_CONSUMER) $(PID_PARSER)
 	@-kill `cat $(PID_API)` 2> /dev/null || true
 	@-kill `cat $(PID_CONSUMER)` 2> /dev/null || true
 	@-kill `cat $(PID_PARSER)` 2> /dev/null || true
-	@-rm $(PID_API) $(PID_CONSUMER) $(PID_PARSER)
+	@-kill `cat $(PID_KEYCHAIN)` 2> /dev/null || true
+	@-rm $(PID_API) $(PID_CONSUMER) $(PID_PARSER) $(PID_KEYCHAIN)
 
 stop-mockserver:
 	@-touch $(PID_MOCKSERVER)
@@ -203,7 +213,7 @@ endif
 
 go-compile: go-build
 
-go-build: go-build-api go-build-consumer go-build-parser
+go-build: go-build-api go-build-consumer go-build-parser go-build-keychain
 
 docker-shutdown:
 	@echo "  >  Shutdown docker containers..."
@@ -226,6 +236,10 @@ go-build-consumer:
 go-build-parser:
 	@echo "  >  Building parser binary..."
 	GOBIN=$(GOBIN) go build $(LDFLAGS) -o $(GOBIN)/$(PARSER)/parser ./cmd/$(PARSER)
+
+go-build-keychain:
+	@echo "  >  Building keychain binary..."
+	GOBIN=$(GOBIN) go build $(LDFLAGS) -o $(GOBIN)/$(KEYCHAIN)/keychain ./cmd/$(KEYCHAIN)
 
 go-generate:
 	@echo "  >  Generating dependency files..."
